@@ -11,6 +11,11 @@ let food = { x: 0, y: 0 };
 let gameOver = false;
 let score = 0;
 
+let touchStartX = 0;
+let touchStartY = 0;
+let touchEndX = 0;
+let touchEndY = 0;
+
 window.onload = function () {
   board = document.getElementById("board");
   board.height = totalRow * blockSize;
@@ -19,6 +24,14 @@ window.onload = function () {
 
   placeFood();
   document.addEventListener("keyup", changeDirection);
+  document.addEventListener("touchstart", handleTouchStart, false);
+  document.addEventListener("touchmove", handleTouchMove, false);
+  document.addEventListener("touchend", handleTouchEnd, false);
+  
+  // Cambiar passive a false para los eventos touch
+  document.addEventListener("touchstart", handleTouchStart, { passive: false });
+  document.addEventListener("touchmove", handleTouchMove, { passive: false });
+  document.addEventListener("touchend", handleTouchEnd, { passive: false });
   setInterval(gameLoop, 1000 / 10);
 };
 
@@ -84,6 +97,47 @@ function changeDirection(e) {
   } else if (e.code === "ArrowRight" && speed.x !== -1) {
     speed.x = 1;
     speed.y = 0;
+  }
+}
+
+// Manejo de gestos de swipe
+function handleTouchStart(e) {
+  const touch = e.touches[0];
+  touchStartX = touch.clientX;
+  touchStartY = touch.clientY;
+}
+
+function handleTouchMove(e) {
+  // Evitar que la página se desplace
+  e.preventDefault();
+}
+
+function handleTouchEnd(e) {
+  const touch = e.changedTouches[0];
+  touchEndX = touch.clientX;
+  touchEndY = touch.clientY;
+
+  let diffX = touchEndX - touchStartX;
+  let diffY = touchEndY - touchStartY;
+
+  if (Math.abs(diffX) > Math.abs(diffY)) {
+    // Movimiento horizontal
+    if (diffX > 0 && speed.x !== -1) {
+      speed.x = 1;
+      speed.y = 0;
+    } else if (diffX < 0 && speed.x !== 1) {
+      speed.x = -1;
+      speed.y = 0;
+    }
+  } else {
+    // Movimiento vertical
+    if (diffY > 0 && speed.y !== -1) {
+      speed.x = 0;
+      speed.y = 1;
+    } else if (diffY < 0 && speed.y !== 1) {
+      speed.x = 0;
+      speed.y = -1;
+    }
   }
 }
 
