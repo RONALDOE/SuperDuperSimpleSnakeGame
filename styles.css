@@ -9,6 +9,7 @@ body {
     overflow: hidden;
     font-family: 'Arial', sans-serif;
     width: 100%;
+    user-select: none;
 }
 
 #game-container {
